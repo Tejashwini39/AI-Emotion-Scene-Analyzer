@@ -2,11 +2,7 @@ import cv2
 from fer import FER
 import tensorflow as tf
 import numpy as np
-
-# Load scene model (MobileNetV2)
 scene_model = tf.keras.applications.MobileNetV2(weights="imagenet")
-
-# FER for emotion detection
 detector = FER(mtcnn=True)
 
 cap = cv2.VideoCapture(0)
@@ -15,16 +11,12 @@ while True:
     ret, frame = cap.read()
     if not ret:
         break
-
-    # ---- Emotion Detection ----
     emotions = detector.detect_emotions(frame)
     if emotions:
         top_emotion, score = detector.top_emotion(frame)
         text = f"Emotion: {top_emotion} ({score*100:.1f}%)"
         cv2.putText(frame, text, (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-    # ---- Scene Detection ----
     resized = cv2.resize(frame, (224, 224))
     img_array = tf.keras.applications.mobilenet_v2.preprocess_input(
         np.expand_dims(resized, axis=0)
@@ -36,10 +28,10 @@ while True:
     cv2.putText(frame, f"Scene: {scene_label} ({scene_prob*100:.1f}%)",
                 (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
-    # Show window
     cv2.imshow("Emotion & Scene Analyzer", frame)
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
 cap.release()
 cv2.destroyAllWindows()
+
